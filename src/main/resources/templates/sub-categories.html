@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub Categories</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 980px; margin: 24px auto;">
+<h2>Sub Categories</h2>
+<p>
+    <a href="/products">Products</a> |
+    <a href="/recently-viewed">Recently Viewed</a> |
+    <a href="/auth/login">Login</a>
+</p>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="sc : ${subCategories}">
+        <td th:text="${sc.name}"></td>
+        <td>
+            <a th:href="@{|/sub-categories/${sc.id}/products|}">View products</a>
+            |
+            <a th:href="@{|/sub-categories/${sc.id}/best-sellers|}">Best sellers</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
+

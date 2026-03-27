@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 780px; margin: 24px auto;">
+<h2>Product Detail</h2>
+<p><a href="/products">Back to Products</a></p>
+
+<div style="margin: 10px 0; border: 1px solid #eee; padding: 10px;">
+    <strong>SubCategories:</strong>
+    <span th:if="${subCategories != null}">
+        <a th:each="sc : ${subCategories}"
+           th:href="@{|/sub-categories/${sc.id}/products|}"
+           th:text="${sc.name}"
+           style="margin-right: 12px; display: inline-block;"></a>
+    </span>
+</div>
+
+<div style="border: 1px solid #ddd; padding: 12px;">
+    <h3 th:text="${product.name}"></h3>
+    <p><strong>Brand:</strong> <span th:text="${product.brand}"></span></p>
+    <p><strong>Category:</strong> <span th:text="${product.category.name}"></span></p>
+    <p><strong>Price:</strong> <span th:text="${product.unitPrice}"></span></p>
+    <p>
+        <strong>Stock:</strong>
+        <span th:text="${product.stockQuantity}"></span>
+        <span th:if="${product.stockQuantity == 0}" style="color: red;">(Out of stock)</span>
+    </p>
+    <p><strong>Warranty:</strong> <span th:text="${product.warrantyPeriodMonths}"></span> months</p>
+    <p><strong>Description:</strong></p>
+    <p th:text="${product.description}"></p>
+    <p><strong>Specifications:</strong></p>
+    <pre style="white-space: pre-wrap;" th:text="${product.specifications}"></pre>
+</div>
+
+<div style="margin-top: 16px;">
+    <h4>Add to Cart</h4>
+    <div th:if="${session.currentUser != null}">
+        <p th:if="${product.stockQuantity == 0}" style="color: red;">Out of stock</p>
+        <form method="post" action="/cart/items/add">
+            <input type="hidden" name="productId" th:value="${product.id}">
+            <label>Quantity</label><br>
+            <input type="number" name="quantity" min="1" value="1" th:disabled="${product.stockQuantity == 0}">
+            <div style="margin-top: 8px;">
+                <button type="submit" th:disabled="${product.stockQuantity == 0}">Add to Cart</button>
+            </div>
+        </form>
+    </div>
+    <div th:if="${session.currentUser == null}">
+        <p>Please login to add items to cart.</p>
+        <a href="/auth/login">Login</a>
+    </div>
+</div>
+
+<div style="margin-top: 16px;" th:if="${!recentlyViewedProducts.isEmpty()}">
+    <h4>Recently Viewed</h4>
+    <ul>
+        <li th:each="rp : ${recentlyViewedProducts}">
+            <a th:href="@{|/product-detail/${rp.id}|}" th:text="${rp.name}"></a>
+            <span th:text="' - ' + ${rp.unitPrice}"></span>
+        </li>
+    </ul>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 920px; margin: 24px auto;">
+<h2>Checkout</h2>
+<p><a href="/cart">Back to Cart</a></p>
+
+<p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+
+<h4>Cart Summary</h4>
+<ul>
+    <li th:each="item : ${cartView.items}">
+        <span th:text="${item.name}"></span> -
+        <span th:text="${item.quantity}"></span> x
+        <span th:text="${item.unitPriceNow}"></span>
+    </li>
+</ul>
+<p><strong>Subtotal:</strong> <span th:text="${cartView.totalPrice}"></span></p>
+
+<form method="post" action="/checkout/place" th:object="${checkoutForm}">
+    <label>Shipping Address</label><br>
+    <input type="text" th:field="*{shippingAddress}" required style="width: 100%; margin-bottom: 8px;">
+
+    <label>Shipping Method</label><br>
+    <select th:field="*{shippingMethod}" style="width: 100%; margin-bottom: 8px;">
+        <option value="standard">Standard</option>
+        <option value="express">Express (+30000)</option>
+    </select>
+
+    <label>Payment Method</label><br>
+    <select th:field="*{paymentMethod}" style="width: 100%; margin-bottom: 12px;">
+        <option value="qr_transfer">VNPay QR Transfer</option>
+        <option value="cod">Cash on Delivery</option>
+    </select>
+
+    <button type="submit">Place Order</button>
+</form>
+</body>
+</html>
+

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Result</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 760px; margin: 24px auto;">
+<h2>Payment Result</h2>
+<p th:if="${successMessage}" th:text="${successMessage}" style="color: green;"></p>
+<p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+<p th:if="${orderCode != null}">
+    <a th:href="@{|/orders/${orderCode}|}">View order detail</a>
+</p>
+<p><a href="/orders">Track all orders</a></p>
+</body>
+</html>
+

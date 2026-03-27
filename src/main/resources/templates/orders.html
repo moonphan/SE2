@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Tracking</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 920px; margin: 24px auto;">
+<h2>Track Order Status</h2>
+<p><a href="/products">Products</a> | <a href="/cart">Cart</a></p>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+    <thead>
+    <tr>
+        <th>Order Code</th>
+        <th>Total</th>
+        <th>Payment Method</th>
+        <th>Status</th>
+        <th>Created At</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="o : ${orders}">
+        <td th:text="${o.orderCode}"></td>
+        <td th:text="${o.finalTotal}"></td>
+        <td th:text="${o.paymentMethod}"></td>
+        <td th:text="${o.orderStatus}"></td>
+        <td th:text="${o.createdAt}"></td>
+        <td><a th:href="@{|/orders/${o.orderCode}|}">View</a></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
+

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Detail</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 920px; margin: 24px auto;">
+<h2>Order Detail</h2>
+<p><a href="/orders">Back to Orders</a></p>
+
+<p><strong>Order Code:</strong> <span th:text="${order.orderCode}"></span></p>
+<p><strong>Status:</strong> <span th:text="${order.orderStatus}"></span></p>
+<p><strong>Payment Method:</strong> <span th:text="${order.paymentMethod}"></span></p>
+<p><strong>Shipping Method:</strong> <span th:text="${order.shippingMethod}"></span></p>
+<p><strong>Shipping Address:</strong> <span th:text="${order.shippingAddress}"></span></p>
+<p><strong>Total:</strong> <span th:text="${order.finalTotal}"></span></p>
+
+<h4>Items</h4>
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+    <thead>
+    <tr>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Unit Price</th>
+        <th>Subtotal</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${order.orderItems}">
+        <td th:text="${item.product.name}"></td>
+        <td th:text="${item.quantity}"></td>
+        <td th:text="${item.unitPrice}"></td>
+        <td th:text="${item.subtotal}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
+

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Products</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 980px; margin: 24px auto;">
+<h2>Browse / Search / Filter Products</h2>
+<p>
+    <a href="/auth/register">Register</a> |
+    <a href="/auth/login">Login</a>
+</p>
+
+<div style="margin-bottom: 14px; border: 1px solid #eee; padding: 10px;">
+    <strong>SubCategories:</strong>
+    <span th:if="${subCategories != null}">
+        <a th:each="sc, iterStat : ${subCategories}"
+           th:href="@{|/sub-categories/${sc.id}/products|}"
+           th:text="${sc.name}"
+           style="margin-right: 12px; display: inline-block;"></a>
+    </span>
+</div>
+
+<form method="get" action="/products" style="border: 1px solid #ddd; padding: 12px; margin-bottom: 16px;">
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+        <div>
+            <label>Keyword</label><br>
+            <input type="text" name="q" th:value="${q}" style="width: 100%;">
+        </div>
+        <div>
+            <label>Category</label><br>
+            <select name="categoryId" style="width: 100%;">
+                <option value="">All</option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}" th:selected="${categoryId != null and categoryId == c.id}"></option>
+            </select>
+        </div>
+        <div>
+            <label>Brand</label><br>
+            <input type="text" name="brand" th:value="${brand}" style="width: 100%;">
+        </div>
+        <div>
+            <label>Min Price</label><br>
+            <input type="number" name="minPrice" th:value="${minPrice}" min="0" step="1000" style="width: 100%;">
+        </div>
+        <div>
+            <label>Max Price</label><br>
+            <input type="number" name="maxPrice" th:value="${maxPrice}" min="0" step="1000" style="width: 100%;">
+        </div>
+        <div>
+            <label>Sort</label><br>
+            <select name="sort" style="width: 100%;">
+                <option value="newest" th:selected="${sort == 'newest'}">Newest</option>
+                <option value="price_asc" th:selected="${sort == 'price_asc'}">Price Asc</option>
+                <option value="price_desc" th:selected="${sort == 'price_desc'}">Price Desc</option>
+                <option value="name_asc" th:selected="${sort == 'name_asc'}">Name Asc</option>
+            </select>
+        </div>
+    </div>
+    <div style="margin-top: 10px;">
+        <button type="submit">Apply</button>
+    </div>
+</form>
+
+<p th:if="${productPage.totalElements == 0}" style="color: #666;">No products found.</p>
+
+<div th:if="${productPage.totalElements > 0}">
+    <p>
+        Total:
+        <strong th:text="${productPage.totalElements}"></strong>
+        products
+    </p>
+    <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${products}">
+            <td th:text="${p.name}"></td>
+            <td th:text="${p.brand}"></td>
+            <td th:text="${p.category.name}"></td>
+            <td th:text="${p.unitPrice}"></td>
+            <td th:text="${p.stockQuantity}"></td>
+            <td><a th:href="@{|/product-detail/${p.id}|}">View Details</a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 12px;">
+        <a th:if="${!productPage.first}"
+           th:href="@{/products(q=${q},categoryId=${categoryId},brand=${brand},minPrice=${minPrice},maxPrice=${maxPrice},sort=${sort},page=${productPage.number - 1},size=${productPage.size})}">
+            Prev
+        </a>
+        <span style="margin: 0 8px;"
+              th:text="'Page ' + ${productPage.number + 1} + ' / ' + ${productPage.totalPages}"></span>
+        <a th:if="${!productPage.last}"
+           th:href="@{/products(q=${q},categoryId=${categoryId},brand=${brand},minPrice=${minPrice},maxPrice=${maxPrice},sort=${sort},page=${productPage.number + 1},size=${productPage.size})}">
+            Next
+        </a>
+    </div>
+</div>
+</body>
+</html>
+

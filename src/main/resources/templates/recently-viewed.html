@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recently Viewed</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 920px; margin: 24px auto;">
+<h2>Recently Viewed (last 6)</h2>
+
+<p>
+    <a href="/products">Products</a> |
+    <a href="/sub-categories">SubCategories</a>
+</p>
+
+<div style="margin-bottom: 14px; border: 1px solid #eee; padding: 10px;">
+    <strong>SubCategories:</strong>
+    <a th:each="sc : ${subCategories}"
+       th:href="@{|/sub-categories/${sc.id}/products|}"
+       th:text="${sc.name}"
+       style="margin-right: 12px; display: inline-block;"></a>
+</div>
+
+<p th:if="${recentlyViewedProducts == null || recentlyViewedProducts.isEmpty()}" style="color: #666;">No recently viewed products yet.</p>
+
+<table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;" th:if="${recentlyViewedProducts != null && !recentlyViewedProducts.isEmpty()}">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Brand</th>
+        <th>Price</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="p : ${recentlyViewedProducts}">
+        <td th:text="${p.name}"></td>
+        <td th:text="${p.brand}"></td>
+        <td th:text="${p.unitPrice}"></td>
+        <td><a th:href="@{|/product-detail/${p.id}|}">View</a></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
+
