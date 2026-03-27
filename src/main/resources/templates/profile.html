@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 680px; margin: 24px auto;">
+<h2>Edit Profile</h2>
+<p>
+    <a href="/products">Products</a> |
+    <a href="/auth/login">Auth</a>
+</p>
+
+<p th:if="${successMessage}" th:text="${successMessage}" style="color: green;"></p>
+<p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+
+<p><strong>Username:</strong> <span th:text="${username}"></span></p>
+<p><strong>Email:</strong> <span th:text="${email}"></span></p>
+
+<form method="post" action="/auth/profile" th:object="${editProfileForm}">
+    <label>Full Name</label><br>
+    <input type="text" th:field="*{fullName}" required style="width: 100%; margin-bottom: 8px;">
+    <label>Phone Number</label><br>
+    <input type="text" th:field="*{phoneNumber}" required style="width: 100%; margin-bottom: 8px;">
+    <label>Address</label><br>
+    <input type="text" th:field="*{address}" style="width: 100%; margin-bottom: 12px;">
+    <button type="submit">Save Changes</button>
+</form>
+</body>
+</html>
+

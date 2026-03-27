@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 680px; margin: 24px auto;">
+<h2>Login</h2>
+<p><a href="/auth/register">Go to Register</a></p>
+<p><a href="/auth/forgot-password">Forgot Password</a></p>
+
+<p th:if="${successMessage}" th:text="${successMessage}" style="color: green;"></p>
+<p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+
+<form method="post" action="/auth/login" th:object="${loginForm}">
+    <div style="margin-bottom: 8px;">
+        <label>Username or Email</label><br>
+        <input type="text" th:field="*{loginId}" required style="width: 100%;">
+    </div>
+
+    <div style="margin-bottom: 12px;">
+        <label>Password</label><br>
+        <input type="password" th:field="*{password}" required style="width: 100%;">
+    </div>
+
+    <button type="submit">Login</button>
+</form>
+
+<form method="post" action="/auth/logout" style="margin-top: 10px;">
+    <button type="submit">Logout</button>
+</form>
+<p style="margin-top: 10px;">
+    <a href="/auth/profile">Edit Profile</a> |
+    <a href="/auth/delete-account">Delete Account</a>
+</p>
+
+<hr style="margin: 20px 0;">
+<p>Page endpoint: <code>GET /auth/login</code></p>
+</body>
+</html>
+
