@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My warranties</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 960px; margin: 24px auto;">
+<h2>My warranties</h2>
+<p><a href="/orders">Orders</a> | <a href="/products">Products</a></p>
+
+<!-- Load failed: user can retry (activity diagram) -->
+<div th:if="${loadError}" style="border: 1px solid #c00; padding: 12px; margin-bottom: 16px; background: #fff5f5;">
+    <p th:text="${loadErrorMessage}">Error</p>
+    <p><a th:href="@{/warranties(q=${searchQuery})}">Click to reload</a></p>
+</div>
+
+<div th:if="${loadError == null or !loadError}">
+    <form method="get" th:action="@{/warranties}" style="margin-bottom: 16px; border: 1px solid #ddd; padding: 10px;">
+        <label>Search serial number or product name</label><br>
+        <input type="text" name="q" th:value="${searchQuery}" placeholder="Serial or product name" style="width: 280px; max-width: 100%;">
+        <button type="submit">Search</button>
+        <a th:if="${searchQuery != null and !#strings.isEmpty(searchQuery)}" th:href="@{/warranties}" style="margin-left: 8px;">Clear</a>
+    </form>
+
+    <!-- No data (activity diagram) vs no search hits -->
+    <p th:if="${(warranties == null or warranties.isEmpty()) and (hasSearchQuery == null or !hasSearchQuery)}"
+       style="padding: 12px; border: 1px solid #ccc; background: #fafafa;">
+        No product is available for warranty.
+    </p>
+    <p th:if="${(warranties == null or warranties.isEmpty()) and hasSearchQuery}"
+       style="padding: 12px; border: 1px solid #eee; background: #fafafa;">
+        No matching products for your search. Try another serial number or product name.
+    </p>
+
+    <!-- List with warranty status -->
+    <table th:if="${warranties != null and !warranties.isEmpty()}" border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+        <thead>
+        <tr>
+            <th>Serial</th>
+            <th>Product</th>
+            <th>Warranty status</th>
+            <th>Start</th>
+            <th>End</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="w : ${warranties}">
+            <td th:text="${w.serialNumber}"></td>
+            <td th:text="${w.product.name}"></td>
+            <td th:text="${w.warrantyStatus}"></td>
+            <td th:text="${w.warrantyStartDate}"></td>
+            <td th:text="${w.warrantyEndDate}"></td>
+            <td><a th:href="@{|/warranties/${w.id}|}">View detail</a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -9,5 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class DeleteAccountForm {
     private String password;
+    /** Must be true to match activity diagram (user confirms deletion). */
+    private Boolean confirmDelete;
 }
 

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare products</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 920px; margin: 24px auto;">
+<h2>Compare two products (same category)</h2>
+<p><a href="/products">Back to products</a></p>
+
+<form method="get" action="/compare" style="border: 1px solid #ddd; padding: 12px; margin-bottom: 16px;">
+    <label>Product ID A</label>
+    <input type="number" name="a" min="1" th:value="${paramA}" style="width: 120px;">
+    <label style="margin-left: 12px;">Product ID B</label>
+    <input type="number" name="b" min="1" th:value="${paramB}" style="width: 120px;">
+    <button type="submit" style="margin-left: 12px;">Compare</button>
+</form>
+<p style="color: #c00;" th:if="${result != null and result.errorMessage() != null}" th:text="${result.errorMessage()}"></p>
+
+<div th:if="${result != null and result.ok()}">
+    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+        <thead>
+        <tr>
+            <th></th>
+            <th th:text="${productA.name}">A</th>
+            <th th:text="${productB.name}">B</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><strong>Brand</strong></td>
+            <td th:text="${productA.brand}"></td>
+            <td th:text="${productB.brand}"></td>
+        </tr>
+        <tr>
+            <td><strong>Main category</strong></td>
+            <td th:text="${productA.category != null ? productA.category.name : '-'}"></td>
+            <td th:text="${productB.category != null ? productB.category.name : '-'}"></td>
+        </tr>
+        <tr>
+            <td><strong>Subcategory</strong></td>
+            <td th:text="${productA.subCategory != null ? productA.subCategory.name : '-'}"></td>
+            <td th:text="${productB.subCategory != null ? productB.subCategory.name : '-'}"></td>
+        </tr>
+        <tr>
+            <td><strong>List price</strong></td>
+            <td th:text="${productA.unitPrice}"></td>
+            <td th:text="${productB.unitPrice}"></td>
+        </tr>
+        <tr>
+            <td><strong>From price (service package)</strong></td>
+            <td th:text="${minPriceA}"></td>
+            <td th:text="${minPriceB}"></td>
+        </tr>
+        <tr>
+            <td><strong>Rating</strong></td>
+            <td th:text="${productA.averageRating}"></td>
+            <td th:text="${productB.averageRating}"></td>
+        </tr>
+        <tr>
+            <td><strong>Warranty (months)</strong></td>
+            <td th:text="${productA.warrantyPeriodMonths}"></td>
+            <td th:text="${productB.warrantyPeriodMonths}"></td>
+        </tr>
+        <tr>
+            <td><strong>Total sold</strong></td>
+            <td th:text="${productA.totalSold}"></td>
+            <td th:text="${productB.totalSold}"></td>
+        </tr>
+        <tr>
+            <td><strong>Description</strong></td>
+            <td style="vertical-align: top; white-space: pre-wrap;" th:text="${productA.description}"></td>
+            <td style="vertical-align: top; white-space: pre-wrap;" th:text="${productB.description}"></td>
+        </tr>
+        <tr>
+            <td><strong>Specifications</strong></td>
+            <td style="vertical-align: top; white-space: pre-wrap;" th:text="${productA.specifications}"></td>
+            <td style="vertical-align: top; white-space: pre-wrap;" th:text="${productB.specifications}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -3,20 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Account</title>
+    <title>Delete account</title>
 </head>
 <body style="font-family: Arial, sans-serif; max-width: 680px; margin: 24px auto;">
-<h2>Delete Account</h2>
-<p><a href="/auth/profile">Back to Profile</a></p>
+<h2>Delete account</h2>
+<p><a href="/auth/profile">Back to profile</a></p>
 
-<p style="color: #b00020;">This action will set account status to deleted and logout immediately.</p>
+<div style="border: 1px solid #b00020; padding: 12px; margin-bottom: 16px; background: #fff8f8;">
+    <strong>Warning:</strong> This will set your account status to deleted and log you out immediately. This action cannot be undone from the app.
+</div>
+
 <p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
 
 <form method="post" action="/auth/delete-account" th:object="${deleteAccountForm}">
-    <label>Confirm Password</label><br>
+    <div style="margin-bottom: 12px;">
+        <label>
+            <input type="checkbox" th:field="*{confirmDelete}">
+            I confirm that I want to delete my account.
+        </label>
+    </div>
+    <label>Password (verify it is you)</label><br>
     <input type="password" th:field="*{password}" required style="width: 100%; margin-bottom: 12px;">
-    <button type="submit">Delete Account</button>
+    <button type="submit">Confirm delete</button>
 </form>
 </body>
 </html>
-

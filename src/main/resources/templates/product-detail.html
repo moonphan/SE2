@@ -7,7 +7,11 @@
 </head>
 <body style="font-family: Arial, sans-serif; max-width: 780px; margin: 24px auto;">
 <h2>Product Detail</h2>
-<p><a href="/products">Back to Products</a></p>
+<p>
+    <a href="/products">Back to Products</a> |
+    <a href="/compare">Compare products</a>
+    <span th:if="${session.currentUser != null}"> | <a href="/warranties">My warranties</a></span>
+</p>
 
 <div style="margin: 10px 0; border: 1px solid #eee; padding: 10px;">
     <strong>SubCategories:</strong>
@@ -34,6 +38,18 @@
     <p th:text="${product.description}"></p>
     <p><strong>Specifications:</strong></p>
     <pre style="white-space: pre-wrap;" th:text="${product.specifications}"></pre>
+</div>
+
+<div style="margin-top: 16px; border: 1px solid #eee; padding: 12px;">
+    <h4>Compare with another product (same category)</h4>
+    <form method="get" action="/compare" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end;">
+        <input type="hidden" name="a" th:value="${product.id}">
+        <div>
+            <label>Other product ID</label><br>
+            <input type="number" name="b" min="1" placeholder="ID" required style="width: 120px;">
+        </div>
+        <button type="submit">Compare</button>
+    </form>
 </div>
 
 <div style="margin-top: 16px;">
@@ -64,6 +80,7 @@
         </li>
     </ul>
 </div>
+<th:block th:replace="~{fragments/ai-chat :: widget}"></th:block>
 </body>
 </html>
 

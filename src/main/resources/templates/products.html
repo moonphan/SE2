@@ -7,9 +7,11 @@
 </head>
 <body style="font-family: Arial, sans-serif; max-width: 980px; margin: 24px auto;">
 <h2>Browse / Search / Filter Products</h2>
+<p th:if="${successMessage}" th:text="${successMessage}" style="color: green;"></p>
 <p>
     <a href="/auth/register">Register</a> |
-    <a href="/auth/login">Login</a>
+    <a href="/auth/login">Login</a> |
+    <a href="/compare">Compare products</a>
 </p>
 
 <div style="margin-bottom: 14px; border: 1px solid #eee; padding: 10px;">
@@ -106,6 +108,7 @@
         </a>
     </div>
 </div>
+<th:block th:replace="~{fragments/ai-chat :: widget}"></th:block>
 </body>
 </html>
 

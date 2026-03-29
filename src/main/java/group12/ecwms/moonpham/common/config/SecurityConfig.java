@@ -37,19 +37,25 @@ public class SecurityConfig {
                                 "/sub-categories/**",
                                 "/product-detail/**",
                                 "/recently-viewed",
+                                "/compare",
+                                "/compare/**",
                                 "/payment/vnpay-return",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
+                                "/api/ai/**",
                                 "/error"
                         ).permitAll()
                         // Routes that require logged-in user
                         .requestMatchers(
                                 "/auth/profile",
+                                "/auth/profile/edit",
                                 "/auth/delete-account",
                                 "/auth/logout",
                                 "/cart/**",
                                 "/checkout/**",
-                                "/orders/**"
+                                "/orders/**",
+                                "/warranties",
+                                "/warranties/**"
                         ).authenticated()
                         .anyRequest().authenticated()
                 )

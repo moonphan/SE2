@@ -13,6 +13,9 @@ public interface AuthService {
 
     String forgotPassword(String email);
 
+    /** True if the token exists in Redis (not expired). */
+    boolean isPasswordResetTokenValid(String token);
+
     void resetPassword(String token, String newPassword, String confirmPassword);
 
     UserAccount getActiveUserById(Long userId);

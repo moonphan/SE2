@@ -1,5 +1,6 @@
 package group12.ecwms.moonpham.features.products.services;
 
+import group12.ecwms.moonpham.common.dto.response.ProductCompareResult;
 import group12.ecwms.moonpham.domain.entity.Category;
 import group12.ecwms.moonpham.domain.entity.Product;
 import group12.ecwms.moonpham.domain.entity.SubCategory;
@@ -29,5 +30,7 @@ public interface ProductService {
     Page<Product> getProductsBySubCategory(Long subCategoryId, int page, int size, String sort);
 
     List<Product> getBestSellersBySubCategory(Long subCategoryId, int limit);
+
+    ProductCompareResult compareProducts(Long productIdA, Long productIdB);
 }
 

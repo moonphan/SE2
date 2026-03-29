@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warranty detail</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 720px; margin: 24px auto;">
+<h2>Warranty details</h2>
+<p><a href="/warranties">Back to My warranties</a></p>
+
+<p th:if="${ticketSuccess}" style="color: #060; border: 1px solid #060; padding: 10px; background: #f0fff0;" th:text="${ticketSuccess}"></p>
+
+<div style="border: 1px solid #ddd; padding: 12px; margin-bottom: 16px;" th:if="${warranty != null}">
+    <p><strong>Serial:</strong> <span th:text="${warranty.serialNumber}"></span></p>
+    <p><strong>Product:</strong> <span th:text="${warranty.product.name}"></span></p>
+    <p><strong>Order:</strong> <span th:text="${warranty.orderItem.order.orderCode}"></span></p>
+    <p><strong>Warranty status:</strong> <span th:text="${warranty.warrantyStatus}"></span></p>
+    <p><strong>Period:</strong>
+        <span th:text="${warranty.warrantyStartDate}"></span> →
+        <span th:text="${warranty.warrantyEndDate}"></span>
+    </p>
+</div>
+
+<div style="margin-bottom: 16px;" th:if="${warranty != null}">
+    <a th:if="${!expired}" th:href="@{|/warranties/${warranty.id}/request|}" style="display: inline-block; padding: 8px 12px; background: #333; color: #fff; text-decoration: none;">Request warranty</a>
+    <p th:if="${expired}" style="color: #c00;">This warranty has expired. You cannot submit a new warranty request.</p>
+</div>
+
+<h3>Support tickets</h3>
+<table th:if="${tickets != null and !tickets.isEmpty()}" border="1" cellpadding="6" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-bottom: 16px;">
+    <thead>
+    <tr>
+        <th>Code</th>
+        <th>Issue</th>
+        <th>Status</th>
+        <th>Created</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="t : ${tickets}">
+        <td th:text="${t.ticketCode}"></td>
+        <td th:text="${t.issueType}"></td>
+        <td th:text="${t.ticketStatus}"></td>
+        <td th:text="${t.createdAt}"></td>
+    </tr>
+    </tbody>
+</table>
+<p th:if="${tickets == null or tickets.isEmpty()}">No support tickets yet.</p>
+</body>
+</html>

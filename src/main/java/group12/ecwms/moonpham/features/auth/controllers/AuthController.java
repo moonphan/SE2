@@ -14,6 +14,7 @@ import group12.ecwms.moonpham.common.dto.session.SessionUser;
 import group12.ecwms.moonpham.features.auth.services.AuthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/auth")
@@ -51,7 +53,7 @@ public class AuthController {
                     registerForm.getAddress()
             );
             RegisterResponse response = authService.register(request);
-            model.addAttribute("successMessage", "Created user: " + response.username() + " (" + response.email() + ")");
+            model.addAttribute("successMessage", response.message());
         } catch (Exception ex) {
             model.addAttribute("errorMessage", ex.getMessage());
         }
@@ -69,7 +71,8 @@ public class AuthController {
     public String login(
             @ModelAttribute LoginForm loginForm,
             HttpSession session,
-            Model model
+            Model model,
+            RedirectAttributes redirectAttributes
     ) {
         try {
             LoginResponse response = authService.login(new LoginRequest(
@@ -82,7 +85,11 @@ public class AuthController {
                     response.email(),
                     response.role()
             ));
-            model.addAttribute("successMessage", "Login successful. Hello " + response.username() + "!");
+            redirectAttributes.addFlashAttribute(
+                    "successMessage",
+                    "Login successful. Welcome, " + response.username() + "!"
+            );
+            return "redirect:/products";
         } catch (Exception ex) {
             model.addAttribute("errorMessage", ex.getMessage());
         }
@@ -106,8 +113,10 @@ public class AuthController {
     public String forgotPassword(@ModelAttribute ForgotPasswordForm forgotPasswordForm, Model model) {
         try {
             authService.forgotPassword(forgotPasswordForm.getEmail());
-            model.addAttribute("successMessage", "Reset link was sent to your email.");
+            model.addAttribute("successMessage",
+                    "Check your email. We sent you a link to reset your password.");
         } catch (Exception ex) {
+            // Activity diagram: email not found → stay on form and show message
             model.addAttribute("errorMessage", ex.getMessage());
         }
         model.addAttribute("forgotPasswordForm", forgotPasswordForm);
@@ -115,7 +124,21 @@ public class AuthController {
     }
 
     @GetMapping("/reset-password")
-    public String resetPasswordPage(@RequestParam(required = false) String token, Model model) {
+    public String resetPasswordPage(
+            @RequestParam(required = false) String token,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (token == null || token.isBlank()) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Invalid reset link. Please enter your email again.");
+            return "redirect:/auth/forgot-password";
+        }
+        if (!authService.isPasswordResetTokenValid(token)) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Link expired. Please enter your email again and request a new link.");
+            return "redirect:/auth/forgot-password";
+        }
         ResetPasswordForm form = new ResetPasswordForm();
         form.setToken(token);
         model.addAttribute("resetPasswordForm", form);
@@ -123,21 +146,40 @@ public class AuthController {
     }
 
     @PostMapping("/reset-password")
-    public String resetPassword(@ModelAttribute ResetPasswordForm resetPasswordForm, Model model) {
+    public String resetPassword(
+            @ModelAttribute ResetPasswordForm resetPasswordForm,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
         try {
             authService.resetPassword(
                     resetPasswordForm.getToken(),
                     resetPasswordForm.getNewPassword(),
                     resetPasswordForm.getConfirmPassword()
             );
-            model.addAttribute("successMessage", "Password reset successful. Please login.");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Password reset successful. You can sign in with your new password.");
+            return "redirect:/auth/login";
         } catch (Exception ex) {
+            String msg = ex.getMessage() == null ? "" : ex.getMessage();
+            if (msg.contains("Link expired")) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Link expired. Please enter your email again and request a new link.");
+                return "redirect:/auth/forgot-password";
+            }
             model.addAttribute("errorMessage", ex.getMessage());
+            if (resetPasswordForm.getToken() != null
+                    && authService.isPasswordResetTokenValid(resetPasswordForm.getToken())) {
+                model.addAttribute("resetPasswordForm", resetPasswordForm);
+                return "reset-password";
+            }
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Link expired. Please enter your email again and request a new link.");
+            return "redirect:/auth/forgot-password";
         }
-        model.addAttribute("resetPasswordForm", resetPasswordForm);
-        return "reset-password";
     }
 
+    /** Activity diagram: display current info (read-only). */
     @GetMapping("/profile")
     public String profilePage(HttpSession session, Model model) {
         SessionUser currentUser = getSessionUser(session);
@@ -145,20 +187,39 @@ public class AuthController {
             return "redirect:/auth/login";
         }
         var user = authService.getActiveUserById(currentUser.id());
-
-        EditProfileForm profileForm = new EditProfileForm();
-        profileForm.setFullName(user.getFullname());
-        profileForm.setPhoneNumber(user.getPhoneNumber());
-        profileForm.setAddress(user.getAddress());
-
-        model.addAttribute("editProfileForm", profileForm);
+        model.addAttribute("fullName", user.getFullname());
+        model.addAttribute("phoneNumber", user.getPhoneNumber());
+        model.addAttribute("address", user.getAddress());
         model.addAttribute("username", user.getUsername());
         model.addAttribute("email", user.getEmail());
         return "profile";
     }
 
+    /** User clicks Edit → update form. */
+    @GetMapping("/profile/edit")
+    public String profileEditPage(HttpSession session, Model model) {
+        SessionUser currentUser = getSessionUser(session);
+        if (currentUser == null) {
+            return "redirect:/auth/login";
+        }
+        var user = authService.getActiveUserById(currentUser.id());
+        EditProfileForm profileForm = new EditProfileForm();
+        profileForm.setFullName(user.getFullname());
+        profileForm.setPhoneNumber(user.getPhoneNumber());
+        profileForm.setAddress(user.getAddress());
+        model.addAttribute("editProfileForm", profileForm);
+        model.addAttribute("username", user.getUsername());
+        model.addAttribute("email", user.getEmail());
+        return "profile-edit";
+    }
+
     @PostMapping("/profile")
-    public String updateProfile(@ModelAttribute EditProfileForm editProfileForm, HttpSession session, Model model) {
+    public String updateProfile(
+            @ModelAttribute EditProfileForm editProfileForm,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
         SessionUser currentUser = getSessionUser(session);
         if (currentUser == null) {
             return "redirect:/auth/login";
@@ -170,16 +231,18 @@ public class AuthController {
                     editProfileForm.getPhoneNumber(),
                     editProfileForm.getAddress()
             );
-            model.addAttribute("successMessage", "Profile updated successfully");
+            redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully.");
+            return "redirect:/auth/profile";
+        } catch (DataAccessException ex) {
+            model.addAttribute("errorMessage", "Database connection error. Please try again later.");
         } catch (Exception ex) {
             model.addAttribute("errorMessage", ex.getMessage());
         }
-
         var user = authService.getActiveUserById(currentUser.id());
         model.addAttribute("username", user.getUsername());
         model.addAttribute("email", user.getEmail());
         model.addAttribute("editProfileForm", editProfileForm);
-        return "profile";
+        return "profile-edit";
     }
 
     @GetMapping("/delete-account")
@@ -192,22 +255,32 @@ public class AuthController {
     }
 
     @PostMapping("/delete-account")
-    public String deleteAccount(@ModelAttribute DeleteAccountForm deleteAccountForm, HttpSession session, Model model) {
+    public String deleteAccount(
+            @ModelAttribute DeleteAccountForm deleteAccountForm,
+            HttpSession session,
+            Model model,
+            RedirectAttributes redirectAttributes
+    ) {
         SessionUser currentUser = getSessionUser(session);
         if (currentUser == null) {
             return "redirect:/auth/login";
         }
+        if (!Boolean.TRUE.equals(deleteAccountForm.getConfirmDelete())) {
+            model.addAttribute("errorMessage", "Please confirm that you want to delete your account.");
+            model.addAttribute("deleteAccountForm", deleteAccountForm);
+            return "delete-account";
+        }
         try {
             authService.deleteAccount(currentUser.id(), deleteAccountForm.getPassword());
             session.invalidate();
-            model.addAttribute("successMessage", "Account deleted successfully");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Your account has been deleted.");
+            return "redirect:/products";
         } catch (Exception ex) {
             model.addAttribute("errorMessage", ex.getMessage());
             model.addAttribute("deleteAccountForm", deleteAccountForm);
             return "delete-account";
         }
-        model.addAttribute("loginForm", new LoginForm());
-        return "login";
     }
 
     private SessionUser getSessionUser(HttpSession session) {

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="widget">
+    <button type="button" id="ai-chat-fab" style="position: fixed; bottom: 24px; right: 24px; z-index: 9998; padding: 12px 16px; border-radius: 24px; border: none; background: #1a73e8; color: #fff; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.2);">
+        Chat with AI
+    </button>
+    <div id="ai-chat-modal" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.35); align-items: center; justify-content: center;">
+        <div style="background: #fff; width: 100%; max-width: 420px; max-height: 85vh; margin: 16px; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 4px 24px rgba(0,0,0,.2);">
+            <div style="padding: 12px 14px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                <strong>AI assistant</strong>
+                <button type="button" id="ai-chat-close" style="border: none; background: none; font-size: 20px; cursor: pointer;">&times;</button>
+            </div>
+            <p id="ai-chat-banner" style="margin: 8px 14px; font-size: 13px; min-height: 1.2em;"></p>
+            <div id="ai-chat-log" style="flex: 1; overflow: auto; padding: 8px 14px; font-size: 14px; line-height: 1.45; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; min-height: 200px; max-height: 45vh;"></div>
+            <div style="padding: 10px 14px; display: flex; gap: 8px;">
+                <input type="text" id="ai-chat-input" placeholder="Type a question..." style="flex: 1; padding: 8px;">
+                <button type="button" id="ai-chat-send" style="padding: 8px 14px;">Send</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function () {
+            const fab = document.getElementById('ai-chat-fab');
+            const modal = document.getElementById('ai-chat-modal');
+            const closeBtn = document.getElementById('ai-chat-close');
+            const sendBtn = document.getElementById('ai-chat-send');
+            const input = document.getElementById('ai-chat-input');
+            const log = document.getElementById('ai-chat-log');
+            const banner = document.getElementById('ai-chat-banner');
+
+            function escapeHtml(s) {
+                const d = document.createElement('div');
+                d.textContent = s;
+                return d.innerHTML;
+            }
+
+            function renderAiReply(text) {
+                const re = /\[([^\]]+)]\(([^)]+)\)/g;
+                let html = '';
+                let last = 0;
+                let m;
+                while ((m = re.exec(text)) !== null) {
+                    html += escapeHtml(text.slice(last, m.index));
+                    let href = m[2].trim();
+                    if (href.startsWith('/') || /^https?:\/\//i.test(href)) {
+                        href = href.replace(/"/g, '%22');
+                        html += '<a href="' + href + '">' + escapeHtml(m[1]) + '</a>';
+                    } else {
+                        html += escapeHtml(m[0]);
+                    }
+                    last = m.index + m[0].length;
+                }
+                html += escapeHtml(text.slice(last));
+                return html;
+            }
+
+            fab.addEventListener('click', async function () {
+                modal.style.display = 'flex';
+                banner.textContent = 'Checking AI service…';
+                banner.style.color = '#333';
+                try {
+                    const r = await fetch('/api/ai/status');
+                    const j = await r.json();
+                    if (!j.online) {
+                        banner.textContent = 'AI service is offline. Set GOOGLE_API_KEY in the server environment.';
+                        banner.style.color = '#c00';
+                        return;
+                    }
+                    banner.textContent = 'You can ask about products. Links in answers open product pages.';
+                    banner.style.color = '#060';
+                } catch (e) {
+                    banner.textContent = 'Could not check AI service.';
+                    banner.style.color = '#c00';
+                }
+            });
+
+            closeBtn.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) modal.style.display = 'none';
+            });
+
+            async function send() {
+                const msg = input.value.trim();
+                if (!msg) return;
+                log.innerHTML += '<div style="margin-bottom:8px;"><b>You:</b> ' + escapeHtml(msg) + '</div>';
+                input.value = '';
+                try {
+                    const r = await fetch('/api/ai/chat', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({message: msg})
+                    });
+                    const j = await r.json();
+                    if (j.error) {
+                        log.innerHTML += '<div style="margin-bottom:8px;color:#c00;"><b>Error:</b> ' + escapeHtml(j.error) + '</div>';
+                        return;
+                    }
+                    log.innerHTML += '<div style="margin-bottom:8px;"><b>AI:</b> <span class="ai-reply-body">' + renderAiReply(j.reply || '') + '</span></div>';
+                    log.scrollTop = log.scrollHeight;
+                } catch (e) {
+                    log.innerHTML += '<div style="margin-bottom:8px;color:#c00;">AI API is temporarily unavailable.</div>';
+                }
+            }
+
+            sendBtn.addEventListener('click', send);
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') send();
+            });
+        })();
+    </script>
+</th:block>
+</body>
+</html>

@@ -39,10 +39,14 @@ public class OpenApiConfig {
                         "/sub-categories/**",
                         "/product-detail/**",
                         "/recently-viewed",
+                        "/compare",
+                        "/compare/**",
+                        "/warranties/**",
                         "/cart/**",
                         "/checkout/**",
                         "/orders/**",
-                        "/payment/**"
+                        "/payment/**",
+                        "/api/ai/**"
                 )
                 .build();
     }

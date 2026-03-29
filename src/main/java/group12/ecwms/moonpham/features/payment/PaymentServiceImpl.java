@@ -1,4 +1,4 @@
-package group12.ecwms.moonpham.features.orders.services;
+package group12.ecwms.moonpham.features.payment;
 
 import group12.ecwms.moonpham.domain.entity.Order;
 import org.springframework.beans.factory.annotation.Value;

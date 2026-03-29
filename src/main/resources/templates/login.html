@@ -7,6 +7,7 @@
 </head>
 <body style="font-family: Arial, sans-serif; max-width: 680px; margin: 24px auto;">
 <h2>Login</h2>
+<p th:if="${successMessage}" th:text="${successMessage}" style="color: green;"></p>
 <p><a href="/auth/register">Go to Register</a></p>
 <p><a href="/auth/forgot-password">Forgot Password</a></p>
 
